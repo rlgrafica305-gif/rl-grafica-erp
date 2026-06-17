@@ -137,7 +137,7 @@ export default function OrcamentoFormulario() {
         {/* Cabeçalho */}
         <div className="flex items-stretch border-b-2 border-black">
           <div className="flex items-center justify-center p-2 border-r-2 border-black">
-            <img src="/logo-login.png" alt="RL Gráfica" className="h-16 w-16 object-contain" />
+            <img src="/logo-login.png" alt="RL Gráfica" className="h-16 w-16 object-contain mix-blend-multiply" />
           </div>
           <div className="flex-1 flex flex-col justify-center px-3 py-2">
             <h1 className="text-2xl font-black tracking-wider leading-none">RL GRÁFICA</h1>
