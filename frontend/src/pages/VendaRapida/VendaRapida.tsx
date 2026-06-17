@@ -35,10 +35,19 @@ function gerarId() {
   return Math.random().toString(36).slice(2)
 }
 
+function maskTelefone(v: string): string {
+  const n = v.replace(/\D/g, '').slice(0, 11)
+  if (n.length <= 2) return n.length ? `(${n}` : ''
+  if (n.length <= 6) return `(${n.slice(0,2)}) ${n.slice(2)}`
+  if (n.length <= 10) return `(${n.slice(0,2)}) ${n.slice(2,6)}-${n.slice(6)}`
+  return `(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7)}`
+}
+
 export default function VendaRapida() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [clienteSelecionado, setClienteSelecionado] = useState<Cliente | null>(null)
+  const [telefoneVenda, setTelefoneVenda] = useState('')
   const [buscaCliente, setBuscaCliente] = useState('')
   const [resultados, setResultados] = useState<Cliente[]>([])
   const [clienteNovo, setClienteNovo] = useState<ClienteNovo>({ nome: '', telefone: '', cpf_cnpj: '', email: '' })
@@ -113,6 +122,7 @@ export default function VendaRapida() {
 
   function selecionarCliente(c: Cliente) {
     setClienteSelecionado(c)
+    setTelefoneVenda(maskTelefone(c.telefone || c.whatsapp || ''))
     setBuscaCliente('')
     setClienteNovo({ nome: '', telefone: '', cpf_cnpj: '', email: '' })
     setResultados([])
@@ -148,7 +158,7 @@ export default function VendaRapida() {
 
   const handleWhatsApp = () => {
     const nomeCliente = clienteSelecionado?.nome || clienteNovo.nome || 'Cliente'
-    const telefone = (clienteSelecionado?.telefone || clienteNovo.telefone || '').replace(/\D/g, '')
+    const telefone = (telefoneVenda || clienteNovo.telefone || '').replace(/\D/g, '')
     const linhasItens = itens
       .filter(i => i.descricao)
       .map(i => `• ${i.descricao} (${i.quantidade}x) — ${formatCurrency(i.quantidade * i.preco_unitario)}`)
@@ -218,6 +228,7 @@ export default function VendaRapida() {
           <button className="btn-primary" onClick={() => {
             setVendaFeita(null)
             setClienteSelecionado(null)
+            setTelefoneVenda('')
             setClienteNovo({ nome: '', telefone: '', cpf_cnpj: '', email: '' })
             setItens([{ id: gerarId(), descricao: '', quantidade: 1, preco_unitario: 0, custo_unitario: 0 }])
             setDesconto(0)
@@ -251,12 +262,19 @@ export default function VendaRapida() {
         <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Cliente</h3>
 
         {clienteSelecionado ? (
-          <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-3">
-            <div>
-              <p className="font-bold text-white uppercase">{clienteSelecionado.nome}</p>
-              <p className="text-xs text-gray-400 uppercase">{clienteSelecionado.telefone || clienteSelecionado.email || 'Sem contato'}</p>
+          <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-3">
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-white uppercase truncate">{clienteSelecionado.nome}</p>
             </div>
-            <button className="text-xs font-bold text-gray-400 hover:text-red-400 uppercase transition-colors" onClick={() => setClienteSelecionado(null)}>
+            <div className="shrink-0">
+              <input
+                className="input text-sm w-44"
+                placeholder="(00) 00000-0000"
+                value={telefoneVenda}
+                onChange={e => setTelefoneVenda(maskTelefone(e.target.value))}
+              />
+            </div>
+            <button className="text-xs font-bold text-gray-400 hover:text-red-400 uppercase transition-colors shrink-0" onClick={() => { setClienteSelecionado(null); setTelefoneVenda('') }}>
               Trocar
             </button>
           </div>
