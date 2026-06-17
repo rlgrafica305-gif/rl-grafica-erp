@@ -22,7 +22,7 @@ class DashboardController extends Controller
 
         // KPIs principais
         $pedidosHoje = Pedido::whereDate('created_at', $hoje)->count();
-        $faturamentoMes = Pedido::whereIn('status', ['finalizado', 'entregue'])
+        $faturamentoMes = Pedido::whereNotIn('status', ['cancelado'])
             ->whereBetween('created_at', [$inicioMes . ' 00:00:00', $fimMes . ' 23:59:59'])
             ->sum('total');
         $emProducao = Pedido::where('status', 'em_producao')->count();
@@ -39,7 +39,7 @@ class DashboardController extends Controller
                 DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
                 DB::raw('SUM(total) as total')
             )
-            ->whereIn('status', ['finalizado', 'entregue'])
+            ->whereNotIn('status', ['cancelado'])
             ->where('created_at', '>=', now()->subMonths(6)->startOfMonth())
             ->groupBy('mes')
             ->orderBy('mes')
