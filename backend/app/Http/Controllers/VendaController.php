@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\ContaReceber;
 use App\Models\Pedido;
 use App\Models\PedidoItem;
 use Illuminate\Http\Request;
@@ -147,7 +148,35 @@ class VendaController extends Controller
             }
 
             $pedido->recalcularTotal();
-            $pedido->mudarStatus('recebido', $request->user(), 'Venda registrada.');
+
+            $statusPagamento    = $request->status_pagamento ?? 'aguardando_pagamento';
+            $formaPagamentoNorm = $this->normalizarFormaPagamento($request->forma_pagamento);
+
+            // Formas aceitas pela tabela contas_receber (enum do banco)
+            $formasContaReceber = ['dinheiro','pix','cartao_credito','cartao_debito','boleto','transferencia'];
+            $formaConta = in_array($formaPagamentoNorm, $formasContaReceber) ? $formaPagamentoNorm : null;
+
+            if ($statusPagamento === 'pago') {
+                $pedido->mudarStatus('finalizado', $request->user(), 'Venda paga à vista — finalizado automaticamente.');
+            } else {
+                $pedido->mudarStatus('recebido', $request->user(), 'Venda registrada.');
+            }
+
+            // Cria conta a receber para o Financeiro
+            $conta = ContaReceber::create([
+                'pedido_id'       => $pedido->id,
+                'cliente_id'      => $clienteId,
+                'created_by'      => $request->user()->id,
+                'descricao'       => 'Pedido ' . $pedido->numero,
+                'valor'           => $pedido->total,
+                'vencimento'      => $request->prazo_entrega ?? now()->addDays(3)->toDateString(),
+                'forma_pagamento' => $formaConta,
+                'status'          => 'pendente',
+            ]);
+
+            if ($statusPagamento === 'pago') {
+                $conta->receber($pedido->total, $formaConta ?? 'pix');
+            }
 
             DB::commit();
 

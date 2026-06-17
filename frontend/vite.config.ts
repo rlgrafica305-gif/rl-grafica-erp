@@ -16,4 +16,17 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-chart': ['recharts'],
+          'vendor-utils': ['axios', 'date-fns', 'lucide-react', 'zod', 'react-hook-form', '@hookform/resolvers'],
+        },
+      },
+    },
+  },
 })

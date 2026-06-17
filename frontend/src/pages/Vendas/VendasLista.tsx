@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import {
   ShoppingBag, Search, TrendingUp, DollarSign, Package, Plus,
-  ChevronLeft, ChevronRight, Eye,
+  ChevronLeft, ChevronRight, Eye, Trash2,
 } from 'lucide-react'
 import { api } from '@/services/api'
 import { formatCurrency } from '@/utils'
@@ -21,9 +21,11 @@ const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
 
 export default function VendasLista() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [pagina, setPagina]   = useState(1)
   const [busca, setBusca]     = useState('')
   const [status, setStatus]   = useState('')
+  const [excluindoId, setExcluindoId] = useState<number | null>(null)
 
   const { data, isLoading } = useQuery<Pagination<Pedido>>({
     queryKey: ['vendas', pagina, busca, status],
@@ -38,6 +40,15 @@ export default function VendasLista() {
   const ultimaPagina   = data?.last_page ?? 1
 
   const totalFaturado = vendas.reduce((s, v) => s + Number(v.total), 0)
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`/pedidos/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendas'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      setExcluindoId(null)
+    },
+  })
 
   return (
     <div className="space-y-5">
@@ -127,7 +138,7 @@ export default function VendasLista() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden md:table-cell">Pagamento</th>
                 <th className="text-center px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden lg:table-cell">Pgto Status</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Total</th>
-                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status Pedido</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -154,7 +165,7 @@ export default function VendasLista() {
                 return (
                   <tr key={venda.id} className="border-b border-brand-dark-border/50 hover:bg-white/2 transition-colors">
                     <td className="px-4 py-3">
-                      <span className="font-mono text-primary text-xs">{venda.numero}</span>
+                      <span className="font-mono text-primary text-xs">{venda.numero.split('-').pop()}</span>
                     </td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-white">{venda.cliente?.nome ?? '—'}</p>
@@ -189,13 +200,22 @@ export default function VendasLista() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        className="text-gray-500 hover:text-primary transition-colors"
-                        title="Ver detalhes"
-                        onClick={() => navigate(`/pedidos/${venda.id}`)}
-                      >
-                        <Eye size={15} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="text-gray-500 hover:text-primary transition-colors"
+                          title="Ver detalhes"
+                          onClick={() => navigate(`/pedidos/${venda.id}`)}
+                        >
+                          <Eye size={15} />
+                        </button>
+                        <button
+                          className="text-gray-500 hover:text-red-400 transition-colors"
+                          title="Excluir venda"
+                          onClick={() => setExcluindoId(venda.id)}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )
@@ -229,6 +249,39 @@ export default function VendasLista() {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmação de exclusão */}
+      {excluindoId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-brand-dark-card border border-brand-dark-border rounded-xl p-6 w-full max-w-sm shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-red-500/20 p-2.5 rounded-lg">
+                <Trash2 size={20} className="text-red-400" />
+              </div>
+              <h3 className="text-base font-bold text-white">Excluir venda</h3>
+            </div>
+            <p className="text-sm text-gray-400 mb-6">
+              Tem certeza que deseja excluir esta venda? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3">
+              <button
+                className="flex-1 btn-secondary"
+                onClick={() => setExcluindoId(null)}
+                disabled={deleteMutation.isPending}
+              >
+                Cancelar
+              </button>
+              <button
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+                onClick={() => deleteMutation.mutate(excluindoId!)}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? 'Excluindo...' : 'Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

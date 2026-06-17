@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, Search, CheckCircle, ShoppingBag, MessageCircle } from 'lucide-react'
 import { api } from '@/services/api'
 import { formatCurrency } from '@/utils'
@@ -37,6 +37,7 @@ function gerarId() {
 
 export default function VendaRapida() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [clienteSelecionado, setClienteSelecionado] = useState<Cliente | null>(null)
   const [buscaCliente, setBuscaCliente] = useState('')
   const [resultados, setResultados] = useState<Cliente[]>([])
@@ -80,6 +81,9 @@ export default function VendaRapida() {
   const mutation = useMutation({
     mutationFn: (payload: object) => api.post('/vendas/rapida', payload),
     onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['financeiro-resumo'] })
+      queryClient.invalidateQueries({ queryKey: ['contas-receber'] })
       setVendaFeita({
         numero:           res.data.numero,
         total:            res.data.total,

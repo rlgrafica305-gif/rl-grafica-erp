@@ -4,7 +4,6 @@ import Layout from '@/components/Layout/Layout'
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
 import ClientesLista from '@/pages/Clientes/ClientesLista'
-import PedidosLista from '@/pages/Pedidos/PedidosLista'
 import ProducaoKanban from '@/pages/Producao/ProducaoKanban'
 import FinanceiroDashboard from '@/pages/Financeiro/FinanceiroDashboard'
 import RelatoriosDashboard from '@/pages/Relatorios/RelatoriosDashboard'
@@ -47,7 +46,6 @@ function AppRoutes() {
         <Route path="clientes/novo"       element={<PrivateRoute roles={['admin','vendedor']}><ClienteForm /></PrivateRoute>} />
         <Route path="clientes/:id/editar" element={<PrivateRoute roles={['admin','vendedor']}><ClienteForm /></PrivateRoute>} />
         <Route path="orcamentos"  element={<PrivateRoute roles={['admin','vendedor']}><OrcamentosLista /></PrivateRoute>} />
-        <Route path="pedidos"      element={<PedidosLista />} />
         <Route path="pedidos/:id"  element={<PedidoDetalhe />} />
         <Route path="producao"    element={<PrivateRoute roles={['admin','producao']}><ProducaoKanban /></PrivateRoute>} />
         <Route path="financeiro"  element={<PrivateRoute roles={['admin']}><FinanceiroDashboard /></PrivateRoute>} />
