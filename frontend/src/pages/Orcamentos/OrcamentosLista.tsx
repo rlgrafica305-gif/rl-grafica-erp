@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Plus, Search, Filter, Eye, Trash2, ArrowRight,
-  ChevronDown, X, Check, Send, XCircle, FileText,
+  ChevronDown, X, Check, Send, XCircle, FileText, ClipboardList, History,
 } from 'lucide-react'
 import { orcamentosApi, clientesApi, produtosApi } from '@/services/api'
 import {
@@ -10,6 +10,7 @@ import {
   STATUS_ORCAMENTO_LABEL, FORMA_PAGAMENTO_LABEL,
 } from '@/utils'
 import type { Orcamento, OrcamentoItem, Cliente, Produto } from '@/types'
+import OrcamentoFormulario from './OrcamentoFormulario'
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -57,13 +58,14 @@ const ITEM_VAZIO: Omit<OrcamentoItem, 'id' | 'subtotal'> = {
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export default function OrcamentosLista() {
+  const [aba, setAba]       = useState<'emitir' | 'historico'>('emitir')
   const [busca, setBusca]   = useState('')
   const [status, setStatus] = useState('')
 
   // Modals
-  const [modalNovo, setModalNovo]         = useState(false)
-  const [modalDetalhe, setModalDetalhe]   = useState<Orcamento | null>(null)
-  const [modalConverter, setModalConverter] = useState<Orcamento | null>(null)
+  const [modalNovo, setModalNovo]             = useState(false)
+  const [modalDetalhe, setModalDetalhe]       = useState<Orcamento | null>(null)
+  const [modalConverter, setModalConverter]   = useState<Orcamento | null>(null)
 
   const qc = useQueryClient()
 
@@ -106,118 +108,144 @@ export default function OrcamentosLista() {
 
   return (
     <div className="space-y-4">
-      {/* Cabeçalho */}
+      {/* Cabeçalho + Abas */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-white">Orçamentos</h2>
-          <p className="text-sm text-gray-400">{data?.total ?? 0} orçamentos</p>
+        <h2 className="text-xl font-bold text-white">Orçamentos</h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setAba('emitir')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              aba === 'emitir'
+                ? 'bg-primary text-white'
+                : 'bg-brand-dark-card border border-brand-dark-border text-gray-300 hover:text-white'
+            }`}
+          >
+            <ClipboardList size={15} /> Emitir Orçamento/Recibo
+          </button>
+          <button
+            onClick={() => setAba('historico')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              aba === 'historico'
+                ? 'bg-primary text-white'
+                : 'bg-brand-dark-card border border-brand-dark-border text-gray-300 hover:text-white'
+            }`}
+          >
+            <History size={15} /> Histórico
+          </button>
+          {aba === 'historico' && (
+            <button onClick={() => setModalNovo(true)} className="btn-primary flex items-center gap-2 text-sm">
+              <Plus size={15} /> Novo
+            </button>
+          )}
         </div>
-        <button onClick={() => setModalNovo(true)} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Novo Orçamento
-        </button>
       </div>
 
-      {/* Filtros */}
-      <div className="card">
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
-          <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Buscar por número ou cliente..."
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-              className="input pl-10"
-            />
-          </div>
-          <div className="relative">
-            <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-            <select
-              value={status}
-              onChange={e => setStatus(e.target.value)}
-              className="select pl-9 pr-8 w-full sm:w-52"
-            >
-              {STATUS_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+      {/* Aba: Emitir Orçamento */}
+      {aba === 'emitir' && <OrcamentoFormulario />}
 
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
-          </div>
-        ) : (
-          <div className="table-container">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Número</th>
-                  <th>Cliente</th>
-                  <th>Status</th>
-                  <th>Validade</th>
-                  <th>Total</th>
-                  <th>Vendedor</th>
-                  <th className="text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data?.data?.map((orc: Orcamento) => (
-                  <tr key={orc.id}>
-                    <td className="font-mono text-xs text-gray-300">{orc.numero}</td>
-                    <td className="font-medium text-white">{orc.cliente?.nome}</td>
-                    <td>
-                      <span className={`badge ${STATUS_COLOR[orc.status]}`}>
-                        {STATUS_ORCAMENTO_LABEL[orc.status]}
-                      </span>
-                    </td>
-                    <td className="text-gray-300">{formatDate(orc.validade)}</td>
-                    <td className="font-semibold text-green-400">{formatCurrency(orc.total)}</td>
-                    <td className="text-gray-300">{orc.vendedor?.name}</td>
-                    <td>
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handleVerDetalhe(orc)}
-                          className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded"
-                          title="Ver detalhes"
-                        >
-                          <Eye size={15} />
-                        </button>
-                        {orc.status === 'aprovado' && (
-                          <button
-                            onClick={() => setModalConverter(orc)}
-                            className="p-1.5 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded"
-                            title="Converter em pedido"
-                          >
-                            <ArrowRight size={15} />
-                          </button>
-                        )}
-                        {!['convertido', 'expirado'].includes(orc.status) && (
-                          <button
-                            onClick={() => handleDelete(orc)}
-                            className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded"
-                            title="Excluir"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+      {/* Aba: Histórico */}
+      {aba === 'historico' && (
+        <div className="card">
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <div className="relative flex-1">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Buscar por número ou cliente..."
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+                className="input pl-10"
+              />
+            </div>
+            <div className="relative">
+              <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+              <select
+                value={status}
+                onChange={e => setStatus(e.target.value)}
+                className="select pl-9 pr-8 w-full sm:w-52"
+              >
+                {STATUS_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
-                {data?.data?.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="text-center py-8 text-gray-500">
-                      Nenhum orçamento encontrado.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+              </select>
+            </div>
           </div>
-        )}
-      </div>
+
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+            </div>
+          ) : (
+            <div className="table-container">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Número</th>
+                    <th>Cliente</th>
+                    <th>Status</th>
+                    <th>Validade</th>
+                    <th>Total</th>
+                    <th>Vendedor</th>
+                    <th className="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.data?.map((orc: Orcamento) => (
+                    <tr key={orc.id}>
+                      <td className="font-mono text-xs text-gray-300">{orc.numero}</td>
+                      <td className="font-medium text-white">{orc.cliente?.nome}</td>
+                      <td>
+                        <span className={`badge ${STATUS_COLOR[orc.status]}`}>
+                          {STATUS_ORCAMENTO_LABEL[orc.status]}
+                        </span>
+                      </td>
+                      <td className="text-gray-300">{formatDate(orc.validade)}</td>
+                      <td className="font-semibold text-green-400">{formatCurrency(orc.total)}</td>
+                      <td className="text-gray-300">{orc.vendedor?.name}</td>
+                      <td>
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleVerDetalhe(orc)}
+                            className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded"
+                            title="Ver detalhes"
+                          >
+                            <Eye size={15} />
+                          </button>
+                          {orc.status === 'aprovado' && (
+                            <button
+                              onClick={() => setModalConverter(orc)}
+                              className="p-1.5 text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded"
+                              title="Converter em pedido"
+                            >
+                              <ArrowRight size={15} />
+                            </button>
+                          )}
+                          {!['convertido', 'expirado'].includes(orc.status) && (
+                            <button
+                              onClick={() => handleDelete(orc)}
+                              className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded"
+                              title="Excluir"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {data?.data?.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-gray-500">
+                        Nenhum orçamento encontrado.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Modals */}
       {modalNovo && (
