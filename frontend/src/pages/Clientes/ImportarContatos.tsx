@@ -27,7 +27,7 @@ function parseVCF(texto: string): Contato[] {
       } else if (!nome && /^N:/i.test(l)) {
         const partes = l.replace(/^N:/i, '').split(';').map(s => s.trim()).filter(Boolean)
         nome = partes.reverse().join(' ').trim()
-      } else if (/^TEL/i.test(l) && !telefone) {
+      } else if (/^(item\d+\.)?TEL/i.test(l) && !telefone) {
         telefone = limpaTelefone(l.split(':').slice(1).join(':'))
       }
     }
