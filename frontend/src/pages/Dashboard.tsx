@@ -59,6 +59,13 @@ export default function Dashboard() {
             <p className="text-sm text-gray-400">Visão geral em tempo real</p>
           </div>
         </div>
+        <button
+          onClick={() => navigate('/venda-rapida')}
+          className="flex items-center gap-2 bg-primary hover:bg-primary/80 text-white font-semibold px-4 py-2 rounded-lg transition-all text-sm shadow-lg shadow-primary/20"
+        >
+          <ShoppingBag size={16} />
+          <span className="hidden sm:inline">Nova Venda</span>
+        </button>
       </div>
 
       {/* KPIs */}
