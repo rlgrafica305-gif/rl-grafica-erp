@@ -352,7 +352,7 @@ export default function VendaRapida() {
             </div>
           </div>
           <div>
-            <label className={labelW}>Prazo de Entrega</label>
+            <label className={labelW}>Data do Pedido</label>
             <input type="date" className={inputW} value={prazoEntrega} onChange={e => setPrazoEntrega(e.target.value)} />
           </div>
           <div>
