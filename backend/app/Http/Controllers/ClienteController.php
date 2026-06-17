@@ -104,6 +104,51 @@ class ClienteController extends Controller
         return response()->json(null, 204);
     }
 
+    public function importar(Request $request): JsonResponse
+    {
+        $request->validate([
+            'contatos'           => 'required|array|min:1|max:5000',
+            'contatos.*.nome'    => 'required|string|max:255',
+            'contatos.*.telefone'=> 'nullable|string|max:30',
+        ]);
+
+        $criados    = 0;
+        $duplicados = 0;
+
+        foreach ($request->contatos as $contato) {
+            $nome     = trim($contato['nome']);
+            $telefone = isset($contato['telefone']) ? preg_replace('/\D/', '', trim($contato['telefone'])) : null;
+
+            if (!$nome) continue;
+
+            $existe = Cliente::where('nome', $nome)
+                ->orWhere(function ($q) use ($telefone) {
+                    if ($telefone) $q->where('telefone', $telefone)->orWhere('whatsapp', $telefone);
+                })
+                ->exists();
+
+            if ($existe) {
+                $duplicados++;
+                continue;
+            }
+
+            Cliente::create([
+                'nome'       => $nome,
+                'telefone'   => $telefone,
+                'whatsapp'   => $telefone,
+                'tipo_pessoa'=> 'F',
+                'created_by' => auth()->id(),
+            ]);
+            $criados++;
+        }
+
+        return response()->json([
+            'criados'    => $criados,
+            'duplicados' => $duplicados,
+            'total'      => count($request->contatos),
+        ]);
+    }
+
     public function buscarCep(string $cep): JsonResponse
     {
         $cep = preg_replace('/\D/', '', $cep);

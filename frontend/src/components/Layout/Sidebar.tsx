@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, FileText, ShoppingCart,
-  Printer, DollarSign, BarChart2, Settings, LogOut, X, ShoppingBag, ClipboardList, SlidersHorizontal,
+  Printer, DollarSign, BarChart2, Settings, LogOut, X, ShoppingBag, ClipboardList, SlidersHorizontal, Upload,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/utils'
@@ -15,7 +15,8 @@ const navItems = [
   { to: '/',              label: 'Dashboard',  icon: LayoutDashboard, roles: ['admin','vendedor','designer','producao'] },
   { to: '/venda-rapida',  label: 'Nova Venda', icon: ShoppingBag,     roles: ['admin','vendedor'] },
   { to: '/vendas',        label: 'Vendas',     icon: ClipboardList,   roles: ['admin','vendedor'] },
-  { to: '/clientes',      label: 'Clientes',   icon: Users,           roles: ['admin','vendedor'] },
+  { to: '/clientes',          label: 'Clientes',         icon: Users,   roles: ['admin','vendedor'] },
+  { to: '/clientes/importar', label: 'Importar Contatos', icon: Upload, roles: ['admin','vendedor'] },
   { to: '/orcamentos',    label: 'Orçamentos', icon: FileText,        roles: ['admin','vendedor'] },
   { to: '/pedidos',       label: 'Pedidos',    icon: ShoppingCart,    roles: ['admin','vendedor','designer','producao'] },
   { to: '/producao',      label: 'Produção',   icon: Printer,         roles: ['admin','producao'] },

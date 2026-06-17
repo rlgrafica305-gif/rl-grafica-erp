@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Clientes (admin, vendedor)
     Route::middleware('role:admin,vendedor')->group(function () {
+        Route::post('/clientes/importar', [ClienteController::class, 'importar']);
         Route::apiResource('clientes', ClienteController::class);
         Route::get('/cep/{cep}', [ClienteController::class, 'buscarCep']);
     });

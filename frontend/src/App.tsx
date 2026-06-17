@@ -12,6 +12,7 @@ import UsuariosLista from '@/pages/Usuarios/UsuariosLista'
 import VendaRapida from '@/pages/VendaRapida/VendaRapida'
 import OrcamentosLista from '@/pages/Orcamentos/OrcamentosLista'
 import ClienteForm from '@/pages/Clientes/ClienteForm'
+import ImportarContatos from '@/pages/Clientes/ImportarContatos'
 import VendasLista from '@/pages/Vendas/VendasLista'
 import PedidoDetalhe from '@/pages/Pedidos/PedidoDetalhe'
 import Configuracoes, { inicializarTema } from '@/pages/Configuracoes/Configuracoes'
@@ -41,8 +42,9 @@ function AppRoutes() {
         <Route index element={<Dashboard />} />
         <Route path="venda-rapida" element={<PrivateRoute roles={['admin','vendedor']}><VendaRapida /></PrivateRoute>} />
         <Route path="vendas"       element={<PrivateRoute roles={['admin','vendedor']}><VendasLista /></PrivateRoute>} />
-        <Route path="clientes"           element={<PrivateRoute roles={['admin','vendedor']}><ClientesLista /></PrivateRoute>} />
-        <Route path="clientes/novo"      element={<PrivateRoute roles={['admin','vendedor']}><ClienteForm /></PrivateRoute>} />
+        <Route path="clientes"             element={<PrivateRoute roles={['admin','vendedor']}><ClientesLista /></PrivateRoute>} />
+        <Route path="clientes/importar"   element={<PrivateRoute roles={['admin','vendedor']}><ImportarContatos /></PrivateRoute>} />
+        <Route path="clientes/novo"       element={<PrivateRoute roles={['admin','vendedor']}><ClienteForm /></PrivateRoute>} />
         <Route path="clientes/:id/editar" element={<PrivateRoute roles={['admin','vendedor']}><ClienteForm /></PrivateRoute>} />
         <Route path="orcamentos"  element={<PrivateRoute roles={['admin','vendedor']}><OrcamentosLista /></PrivateRoute>} />
         <Route path="pedidos"      element={<PedidosLista />} />
