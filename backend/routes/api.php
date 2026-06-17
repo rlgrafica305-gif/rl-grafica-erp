@@ -113,6 +113,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/financeiro/pagar',                      [FinanceiroController::class, 'indexPagar']);
         Route::post('/financeiro/pagar',                     [FinanceiroController::class, 'storePagar']);
         Route::post('/financeiro/pagar/{conta}/pagar',       [FinanceiroController::class, 'pagarConta']);
+        Route::get('/financeiro/relatorio',                  [FinanceiroController::class, 'relatorio']);
     });
 
     // Relatórios (admin)

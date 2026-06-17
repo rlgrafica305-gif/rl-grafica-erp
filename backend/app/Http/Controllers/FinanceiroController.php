@@ -153,4 +153,34 @@ class FinanceiroController extends Controller
             'saldo_mes'         => MovimentacaoCaixa::saldoPeriodo($inicioMes, $fimMes),
         ]);
     }
+
+    public function relatorio(Request $request): JsonResponse
+    {
+        $mes = (int) ($request->mes ?? now()->month);
+        $ano = (int) ($request->ano ?? now()->year);
+
+        $inicio = \Carbon\Carbon::create($ano, $mes, 1)->startOfMonth()->toDateString();
+        $fim    = \Carbon\Carbon::create($ano, $mes, 1)->endOfMonth()->toDateString();
+
+        $entradas = ContaReceber::with(['cliente:id,nome', 'pedido:id,numero'])
+            ->where('status', 'recebido')
+            ->whereBetween('recebido_em', [$inicio . ' 00:00:00', $fim . ' 23:59:59'])
+            ->orderBy('recebido_em')
+            ->get();
+
+        $saidas = ContaPagar::with(['fornecedor:id,nome'])
+            ->where('status', 'pago')
+            ->whereBetween('pago_em', [$inicio . ' 00:00:00', $fim . ' 23:59:59'])
+            ->orderBy('pago_em')
+            ->get();
+
+        return response()->json([
+            'periodo'        => ['mes' => $mes, 'ano' => $ano, 'inicio' => $inicio, 'fim' => $fim],
+            'total_entradas' => (float) $entradas->sum('valor_recebido'),
+            'total_saidas'   => (float) $saidas->sum('valor_pago'),
+            'saldo'          => (float) $entradas->sum('valor_recebido') - (float) $saidas->sum('valor_pago'),
+            'entradas'       => $entradas,
+            'saidas'         => $saidas,
+        ]);
+    }
 }
