@@ -63,10 +63,19 @@ export default function ClienteForm() {
     },
   })
 
-  /* ── Busca CEP ── */
-  async function buscarCep() {
-    const cep = form.cep.replace(/\D/g, '')
-    if (cep.length !== 8) return
+  function set(campo: keyof FormData, valor: unknown) {
+    setForm(f => ({ ...f, [campo]: valor }))
+    setErro('')
+  }
+
+  function handleCep(raw: string) {
+    const nums = raw.replace(/\D/g, '').slice(0, 8)
+    const masked = nums.length > 5 ? `${nums.slice(0,5)}-${nums.slice(5)}` : nums
+    set('cep', masked)
+    if (nums.length === 8) buscarCepStr(nums)
+  }
+
+  async function buscarCepStr(cep: string) {
     setCepLoad(true)
     try {
       const { data } = await clientesApi.buscarCep(cep)
@@ -77,13 +86,8 @@ export default function ClienteForm() {
         cidade:     data.localidade ?? f.cidade,
         estado:     data.uf         ?? f.estado,
       }))
-    } catch {/* CEP inválido — não preenche */ }
+    } catch {/* CEP inválido */}
     finally { setCepLoad(false) }
-  }
-
-  function set(campo: keyof FormData, valor: unknown) {
-    setForm(f => ({ ...f, [campo]: valor }))
-    setErro('')
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -230,12 +234,11 @@ export default function ClienteForm() {
                   className={inputCls + ' pr-10'}
                   placeholder="00000-000"
                   value={form.cep}
-                  onChange={e => set('cep', e.target.value)}
-                  onBlur={buscarCep}
+                  onChange={e => handleCep(e.target.value)}
                 />
                 <button
                   type="button"
-                  onClick={buscarCep}
+                  onClick={() => buscarCepStr(form.cep.replace(/\D/g, ''))}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
                 >
                   {cepLoad
