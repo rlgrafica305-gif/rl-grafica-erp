@@ -6,8 +6,6 @@ import Dashboard from '@/pages/Dashboard'
 import ClientesLista from '@/pages/Clientes/ClientesLista'
 import PedidosLista from '@/pages/Pedidos/PedidosLista'
 import ProducaoKanban from '@/pages/Producao/ProducaoKanban'
-import ArtesGerenciamento from '@/pages/Artes/ArtesGerenciamento'
-import EstoqueControle from '@/pages/Estoque/EstoqueControle'
 import FinanceiroDashboard from '@/pages/Financeiro/FinanceiroDashboard'
 import RelatoriosDashboard from '@/pages/Relatorios/RelatoriosDashboard'
 import UsuariosLista from '@/pages/Usuarios/UsuariosLista'
@@ -49,9 +47,7 @@ function AppRoutes() {
         <Route path="orcamentos"  element={<PrivateRoute roles={['admin','vendedor']}><OrcamentosLista /></PrivateRoute>} />
         <Route path="pedidos"      element={<PedidosLista />} />
         <Route path="pedidos/:id"  element={<PedidoDetalhe />} />
-        <Route path="artes"       element={<PrivateRoute roles={['admin','designer']}><ArtesGerenciamento /></PrivateRoute>} />
         <Route path="producao"    element={<PrivateRoute roles={['admin','producao']}><ProducaoKanban /></PrivateRoute>} />
-        <Route path="estoque"     element={<PrivateRoute roles={['admin']}><EstoqueControle /></PrivateRoute>} />
         <Route path="financeiro"  element={<PrivateRoute roles={['admin']}><FinanceiroDashboard /></PrivateRoute>} />
         <Route path="relatorios"  element={<PrivateRoute roles={['admin']}><RelatoriosDashboard /></PrivateRoute>} />
         <Route path="usuarios"       element={<PrivateRoute roles={['admin']}><UsuariosLista /></PrivateRoute>} />

@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
-  LayoutDashboard, Users, FileText, ShoppingCart, Image,
-  Printer, Package, DollarSign, BarChart2, Settings, LogOut, X, ShoppingBag, ClipboardList, SlidersHorizontal,
+  LayoutDashboard, Users, FileText, ShoppingCart,
+  Printer, DollarSign, BarChart2, Settings, LogOut, X, ShoppingBag, ClipboardList, SlidersHorizontal,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/utils'
@@ -18,9 +18,7 @@ const navItems = [
   { to: '/clientes',      label: 'Clientes',   icon: Users,           roles: ['admin','vendedor'] },
   { to: '/orcamentos',    label: 'Orçamentos', icon: FileText,        roles: ['admin','vendedor'] },
   { to: '/pedidos',       label: 'Pedidos',    icon: ShoppingCart,    roles: ['admin','vendedor','designer','producao'] },
-  { to: '/artes',         label: 'Artes',      icon: Image,           roles: ['admin','designer'] },
   { to: '/producao',      label: 'Produção',   icon: Printer,         roles: ['admin','producao'] },
-  { to: '/estoque',       label: 'Estoque',    icon: Package,         roles: ['admin'] },
   { to: '/financeiro',    label: 'Financeiro', icon: DollarSign,      roles: ['admin'] },
   { to: '/relatorios',    label: 'Relatórios', icon: BarChart2,       roles: ['admin'] },
   { to: '/usuarios',       label: 'Usuários',      icon: Settings,          roles: ['admin'] },

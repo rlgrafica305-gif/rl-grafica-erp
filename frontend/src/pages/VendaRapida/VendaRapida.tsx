@@ -105,15 +105,6 @@ export default function VendaRapida() {
     setItens(prev => prev.map(i => i.id === id ? { ...i, [campo]: valor } : i))
   }
 
-  function selecionarProduto(itemId: string, produtoId: number) {
-    const p = produtos?.find(p => p.id === produtoId)
-    if (!p) return
-    setItens(prev => prev.map(i => i.id === itemId
-      ? { ...i, produto_id: p.id, descricao: p.nome, preco_unitario: p.preco_base }
-      : i
-    ))
-  }
-
   function selecionarCliente(c: Cliente) {
     setClienteSelecionado(c)
     setBuscaCliente('')
@@ -210,6 +201,10 @@ export default function VendaRapida() {
     )
   }
 
+  const cardW = 'bg-white border border-gray-200 rounded-xl p-4 shadow-sm'
+  const labelW = 'text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5 block'
+  const inputW = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary/40'
+
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       <div className="flex items-center gap-3">
@@ -217,35 +212,33 @@ export default function VendaRapida() {
           <ShoppingBag size={22} className="text-primary" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-white">Venda Rápida</h2>
-          <p className="text-sm text-gray-400">Registre uma venda em segundos</p>
+          <h2 className="text-xl font-bold text-white">NOVA VENDA</h2>
+          <p className="text-sm text-gray-400 uppercase tracking-wide">Registre uma venda em segundos</p>
         </div>
       </div>
 
       {/* Cliente */}
-      <div className="card space-y-3">
-        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Cliente</h3>
+      <div className={cardW}>
+        <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">Cliente</h3>
 
         {clienteSelecionado ? (
-          /* Cliente existente selecionado via busca */
-          <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-3">
+          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-300 rounded-lg px-4 py-3">
             <div>
-              <p className="font-semibold text-white">{clienteSelecionado.nome}</p>
-              <p className="text-xs text-gray-400">{clienteSelecionado.telefone || clienteSelecionado.email || 'Sem contato'}</p>
+              <p className="font-bold text-gray-900 uppercase">{clienteSelecionado.nome}</p>
+              <p className="text-xs text-gray-500 uppercase">{clienteSelecionado.telefone || clienteSelecionado.email || 'Sem contato'}</p>
             </div>
-            <button className="text-xs text-gray-400 hover:text-red-400 transition-colors" onClick={() => setClienteSelecionado(null)}>
+            <button className="text-xs font-bold text-gray-500 hover:text-red-500 uppercase transition-colors" onClick={() => setClienteSelecionado(null)}>
               Trocar
             </button>
           </div>
         ) : (
           <div className="space-y-3">
-            {/* Nome com busca de clientes existentes */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5 block">Nome do cliente *</label>
+              <label className={labelW}>Nome do Cliente *</label>
               <div className="relative">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  className="input pl-9"
+                  className={inputW + ' pl-9'}
                   placeholder="Digite o nome para buscar ou cadastrar..."
                   value={clienteNovo.nome}
                   onChange={e => {
@@ -253,36 +246,24 @@ export default function VendaRapida() {
                     setBuscaCliente(e.target.value)
                   }}
                 />
-                {/* Dropdown de resultados */}
                 {resultados.length > 0 && clienteNovo.nome.length >= 2 && (
-                  <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-brand-dark-card border border-brand-dark-border rounded-lg shadow-xl overflow-hidden">
+                  <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden">
                     {resultados.map(c => (
-                      <button
-                        key={c.id}
-                        className="w-full text-left px-4 py-2.5 hover:bg-white/5 transition-colors border-b border-brand-dark-border last:border-0"
-                        onClick={() => selecionarCliente(c)}
-                      >
-                        <p className="text-sm font-medium text-white">{c.nome}</p>
-                        <p className="text-xs text-gray-400">{c.telefone || c.email || ''}</p>
+                      <button key={c.id} className="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0" onClick={() => selecionarCliente(c)}>
+                        <p className="text-sm font-bold text-gray-900 uppercase">{c.nome}</p>
+                        <p className="text-xs text-gray-500">{c.telefone || c.email || ''}</p>
                       </button>
                     ))}
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Telefone — sempre visível */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5 block">Telefone / WhatsApp</label>
-              <input
-                className="input w-full"
-                placeholder="(00) 00000-0000"
-                value={clienteNovo.telefone}
-                onChange={e => setClienteNovo(p => ({ ...p, telefone: e.target.value }))}
-              />
+              <label className={labelW}>Telefone / WhatsApp</label>
+              <input className={inputW} placeholder="(00) 00000-0000" value={clienteNovo.telefone}
+                onChange={e => setClienteNovo(p => ({ ...p, telefone: e.target.value }))} />
             </div>
-
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-400 uppercase tracking-wide">
               Se o nome ou telefone já existir na base, o cliente será identificado automaticamente.
             </p>
           </div>
@@ -290,65 +271,42 @@ export default function VendaRapida() {
       </div>
 
       {/* Itens */}
-      <div className="card space-y-3">
-        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Itens da Venda</h3>
-
+      <div className={cardW}>
+        <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">Itens da Venda</h3>
         <div className="space-y-2">
-          {itens.map((item, idx) => (
-            <div key={item.id} className="p-3 bg-white/2 rounded-lg border border-brand-dark-border space-y-2">
-
-              {/* Linha 1 — Serviço */}
+          {itens.map((item) => (
+            <div key={item.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-2">
               <div className="flex items-center gap-2">
                 <div className="flex-1">
-                  <label className="text-xs text-gray-500 mb-0.5 block">Serviço / Descrição *</label>
-                  <input
-                    className="input text-sm w-full"
-                    placeholder={`Ex: Banner 2x1m, Cartão de visita...`}
-                    value={item.descricao}
-                    onChange={e => atualizarItem(item.id, 'descricao', e.target.value)}
-                  />
+                  <label className={labelW}>Serviço / Descrição *</label>
+                  <input className={inputW} placeholder="Ex: Banner 2x1m, Cartão de visita..."
+                    value={item.descricao} onChange={e => atualizarItem(item.id, 'descricao', e.target.value)} />
                 </div>
                 {itens.length > 1 && (
-                  <button className="text-gray-600 hover:text-red-400 transition-colors mt-4 shrink-0" onClick={() => removerItem(item.id)}>
+                  <button className="text-gray-400 hover:text-red-500 transition-colors mt-5 shrink-0" onClick={() => removerItem(item.id)}>
                     <Trash2 size={14} />
                   </button>
                 )}
               </div>
-
-              {/* Linha 2 — Qtd | Custo | Valor venda | Total */}
               <div className="grid grid-cols-4 gap-2">
                 <div>
-                  <label className="text-xs text-gray-500 mb-0.5 block">Quantidade</label>
-                  <input
-                    type="number" min="0.01" step="0.01"
-                    className="input"
-                    value={item.quantidade}
-                    onChange={e => atualizarItem(item.id, 'quantidade', parseFloat(e.target.value) || 0)}
-                  />
+                  <label className={labelW}>Quantidade</label>
+                  <input type="number" min="0.01" step="0.01" className={inputW}
+                    value={item.quantidade} onChange={e => atualizarItem(item.id, 'quantidade', parseFloat(e.target.value) || 0)} />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-0.5 block">Custo unit. (R$)</label>
-                  <input
-                    type="number" min="0" step="0.01"
-                    className="input"
-                    placeholder="0,00"
-                    value={item.custo_unitario}
-                    onChange={e => atualizarItem(item.id, 'custo_unitario', parseFloat(e.target.value) || 0)}
-                  />
+                  <label className={labelW}>Custo Unit. R$</label>
+                  <input type="number" min="0" step="0.01" className={inputW} placeholder="0,00"
+                    value={item.custo_unitario} onChange={e => atualizarItem(item.id, 'custo_unitario', parseFloat(e.target.value) || 0)} />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-0.5 block">Valor venda (R$)</label>
-                  <input
-                    type="number" min="0" step="0.01"
-                    className="input"
-                    placeholder="0,00"
-                    value={item.preco_unitario}
-                    onChange={e => atualizarItem(item.id, 'preco_unitario', parseFloat(e.target.value) || 0)}
-                  />
+                  <label className={labelW}>Valor Venda R$</label>
+                  <input type="number" min="0" step="0.01" className={inputW} placeholder="0,00"
+                    value={item.preco_unitario} onChange={e => atualizarItem(item.id, 'preco_unitario', parseFloat(e.target.value) || 0)} />
                 </div>
                 <div className="flex flex-col justify-end">
-                  <label className="text-xs text-gray-500 mb-0.5 block">Total</label>
-                  <div className="input bg-white/3 text-emerald-400 font-semibold text-sm">
+                  <label className={labelW}>Total</label>
+                  <div className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-bold text-emerald-600 bg-emerald-50">
                     {formatCurrency(item.quantidade * item.preco_unitario)}
                   </div>
                 </div>
@@ -356,84 +314,77 @@ export default function VendaRapida() {
             </div>
           ))}
         </div>
-
-        <button className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors" onClick={adicionarItem}>
-          <Plus size={15} /> Adicionar item
+        <button className="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 uppercase tracking-wide mt-3 transition-colors" onClick={adicionarItem}>
+          <Plus size={15} /> Adicionar Item
         </button>
       </div>
 
       {/* Pagamento + Resumo */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="card space-y-3">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Pagamento</h3>
+        <div className={cardW + ' space-y-3'}>
+          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Pagamento</h3>
           <div>
-            <label className="label">Forma de Pagamento *</label>
-            <select className="input" value={formaPagamento} onChange={e => setFormaPagamento(e.target.value)}>
+            <label className={labelW}>Forma de Pagamento *</label>
+            <select className={inputW} value={formaPagamento} onChange={e => setFormaPagamento(e.target.value)}>
               {FORMAS_PAGAMENTO.map(f => <option key={f}>{f}</option>)}
             </select>
           </div>
           <div>
-            <label className="label">Status do Pagamento</label>
+            <label className={labelW}>Status do Pagamento</label>
             <div className="flex gap-2">
               {([
                 ['pago',                 'Pago'],
-                ['sinal_entrada',        'Sinal de Entrada'],
+                ['sinal_entrada',        'Sinal'],
                 ['aguardando_pagamento', 'Aguardando'],
               ] as [string, string][]).map(([val, label]) => (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => setStatusPagamento(val)}
-                  className={`flex-1 text-xs py-2 rounded-lg border transition-colors ${
+                <button key={val} type="button" onClick={() => setStatusPagamento(val)}
+                  className={`flex-1 text-xs font-bold py-2 rounded-lg border uppercase transition-colors ${
                     statusPagamento === val
-                      ? val === 'pago'
-                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                        : val === 'sinal_entrada'
-                        ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400'
-                        : 'bg-orange-500/20 border-orange-500 text-orange-400'
-                      : 'border-brand-dark-border text-gray-500 hover:text-gray-300'
-                  }`}
-                >
+                      ? val === 'pago' ? 'bg-emerald-100 border-emerald-500 text-emerald-700'
+                        : val === 'sinal_entrada' ? 'bg-yellow-100 border-yellow-500 text-yellow-700'
+                        : 'bg-orange-100 border-orange-500 text-orange-700'
+                      : 'border-gray-300 text-gray-500 hover:text-gray-700 bg-white'
+                  }`}>
                   {label}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="label">Prazo de Entrega</label>
-            <input type="date" className="input" value={prazoEntrega} onChange={e => setPrazoEntrega(e.target.value)} />
+            <label className={labelW}>Prazo de Entrega</label>
+            <input type="date" className={inputW} value={prazoEntrega} onChange={e => setPrazoEntrega(e.target.value)} />
           </div>
           <div>
-            <label className="label">Desconto (%)</label>
-            <input type="number" min="0" max="100" className="input" value={desconto} onChange={e => setDesconto(parseFloat(e.target.value) || 0)} />
+            <label className={labelW}>Desconto (%)</label>
+            <input type="number" min="0" max="100" className={inputW} value={desconto} onChange={e => setDesconto(parseFloat(e.target.value) || 0)} />
           </div>
           <div>
-            <label className="label">Observações</label>
-            <textarea className="input resize-none" rows={2} value={observacoes} onChange={e => setObservacoes(e.target.value)} />
+            <label className={labelW}>Observações</label>
+            <textarea className={inputW + ' resize-none'} rows={2} value={observacoes} onChange={e => setObservacoes(e.target.value)} />
           </div>
         </div>
 
-        <div className="card space-y-4">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Resumo</h3>
+        <div className={cardW + ' space-y-4'}>
+          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Resumo</h3>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between text-gray-400">
+            <div className="flex justify-between text-gray-600 uppercase font-medium">
               <span>Subtotal</span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
             {desconto > 0 && (
-              <div className="flex justify-between text-red-400">
+              <div className="flex justify-between text-red-600 uppercase font-medium">
                 <span>Desconto ({desconto}%)</span>
                 <span>-{formatCurrency(descontoValor)}</span>
               </div>
             )}
-            <div className="flex justify-between font-bold text-white text-base pt-2 border-t border-brand-dark-border">
+            <div className="flex justify-between font-black text-gray-900 text-base pt-2 border-t border-gray-200 uppercase">
               <span>Total</span>
-              <span className="text-emerald-400">{formatCurrency(total)}</span>
+              <span className="text-emerald-600">{formatCurrency(total)}</span>
             </div>
           </div>
 
           <button
-            className="btn-primary w-full text-base py-3 mt-2"
+            className="btn-primary w-full text-base py-3 mt-2 uppercase font-bold tracking-wider"
             disabled={!podeFinalizar || mutation.isPending}
             onClick={finalizarVenda}
           >
@@ -441,7 +392,7 @@ export default function VendaRapida() {
           </button>
 
           {mutation.isError && (
-            <p className="text-sm text-red-400 text-center">
+            <p className="text-sm text-red-500 text-center uppercase font-medium">
               Erro ao registrar. Verifique os campos e tente novamente.
             </p>
           )}
