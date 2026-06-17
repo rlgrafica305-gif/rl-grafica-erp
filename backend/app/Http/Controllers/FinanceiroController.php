@@ -42,6 +42,12 @@ class FinanceiroController extends Controller
         return response()->json($conta->load(['cliente:id,nome', 'pedido:id,numero']), 201);
     }
 
+    public function destroyReceber(ContaReceber $conta): JsonResponse
+    {
+        $conta->delete();
+        return response()->json(null, 204);
+    }
+
     public function receberPagamento(Request $request, ContaReceber $conta): JsonResponse
     {
         if ($conta->status === 'recebido') {

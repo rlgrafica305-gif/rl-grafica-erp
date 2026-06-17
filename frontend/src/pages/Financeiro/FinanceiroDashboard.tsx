@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { DollarSign, TrendingDown, TrendingUp, AlertCircle, CheckCircle, FileText } from 'lucide-react'
+import { DollarSign, TrendingDown, TrendingUp, AlertCircle, CheckCircle, FileText, Trash2 } from 'lucide-react'
 import { financeiroApi } from '@/services/api'
 import { formatCurrency, formatDate } from '@/utils'
 import type { ContaReceber, ContaPagar } from '@/types'
@@ -40,6 +40,24 @@ export default function FinanceiroDashboard() {
     queryFn: () => financeiroApi.relatorio({ mes: mesFiltro, ano: anoFiltro }).then(r => r.data),
     enabled: aba === 'relatorio',
   })
+
+  const deleteReceberMutation = useMutation({
+    mutationFn: (id: number) => financeiroApi.deleteReceber(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['financeiro-relatorio'] })
+      qc.invalidateQueries({ queryKey: ['financeiro-resumo'] })
+    },
+  })
+
+  function confirmarExclusao(id: number, descricao: string) {
+    if (!confirm(`Excluir o lançamento "${descricao}"?`)) return
+    deleteReceberMutation.mutate(id)
+  }
+
+  function numeroCurto(descricao: string): string {
+    const partes = descricao.split('-')
+    return partes.length >= 2 ? partes[partes.length - 1].slice(-4) : descricao
+  }
 
   const receberMutation = useMutation({
     mutationFn: ({ id, valor_recebido, forma_pagamento }: any) =>
@@ -236,19 +254,28 @@ export default function FinanceiroDashboard() {
                     <table className="table">
                       <thead>
                         <tr>
-                          <th>Descrição</th>
+                          <th>Nº</th>
                           <th>Cliente</th>
                           <th>Data</th>
                           <th>Valor</th>
+                          <th></th>
                         </tr>
                       </thead>
                       <tbody>
                         {relatorio.entradas.map((e: any) => (
                           <tr key={e.id}>
-                            <td className="text-white">{e.descricao}</td>
+                            <td className="text-white font-mono">{numeroCurto(e.descricao)}</td>
                             <td className="text-gray-300">{e.cliente?.nome ?? '—'}</td>
                             <td className="text-gray-300">{formatDate(e.recebido_em?.slice(0,10))}</td>
                             <td className="font-semibold text-green-400">{formatCurrency(e.valor_recebido)}</td>
+                            <td>
+                              <button
+                                onClick={() => confirmarExclusao(e.id, e.descricao)}
+                                className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>

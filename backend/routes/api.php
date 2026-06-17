@@ -109,6 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/financeiro/receber',                    [FinanceiroController::class, 'indexReceber']);
         Route::post('/financeiro/receber',                   [FinanceiroController::class, 'storeReceber']);
         Route::post('/financeiro/receber/{conta}/receber',   [FinanceiroController::class, 'receberPagamento']);
+        Route::delete('/financeiro/receber/{conta}',         [FinanceiroController::class, 'destroyReceber']);
         // Contas a pagar
         Route::get('/financeiro/pagar',                      [FinanceiroController::class, 'indexPagar']);
         Route::post('/financeiro/pagar',                     [FinanceiroController::class, 'storePagar']);

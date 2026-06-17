@@ -130,6 +130,7 @@ export const financeiroApi = {
   storePagar:       (data: object)  => api.post('/financeiro/pagar', data),
   registrarPagamento:   (id: number, data: object) => api.post(`/financeiro/pagar/${id}/pagar`, data),
   relatorio:            (params?: object)           => api.get('/financeiro/relatorio', { params }),
+  deleteReceber:        (id: number)                => api.delete(`/financeiro/receber/${id}`),
 }
 
 // ─── Relatórios ─────────────────────────────────────────────────────────────
