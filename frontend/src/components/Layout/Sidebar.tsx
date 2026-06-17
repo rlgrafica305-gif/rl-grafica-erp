@@ -1,0 +1,121 @@
+import { NavLink } from 'react-router-dom'
+import {
+  LayoutDashboard, Users, FileText, ShoppingCart, Image,
+  Printer, Package, DollarSign, BarChart2, Settings, LogOut, X, ShoppingBag, ClipboardList, SlidersHorizontal,
+} from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { cn } from '@/utils'
+
+interface SidebarProps {
+  open: boolean
+  onClose: () => void
+}
+
+const navItems = [
+  { to: '/',              label: 'Dashboard',  icon: LayoutDashboard, roles: ['admin','vendedor','designer','producao'] },
+  { to: '/venda-rapida',  label: 'Nova Venda', icon: ShoppingBag,     roles: ['admin','vendedor'] },
+  { to: '/vendas',        label: 'Vendas',     icon: ClipboardList,   roles: ['admin','vendedor'] },
+  { to: '/clientes',      label: 'Clientes',   icon: Users,           roles: ['admin','vendedor'] },
+  { to: '/orcamentos',    label: 'Orçamentos', icon: FileText,        roles: ['admin','vendedor'] },
+  { to: '/pedidos',       label: 'Pedidos',    icon: ShoppingCart,    roles: ['admin','vendedor','designer','producao'] },
+  { to: '/artes',         label: 'Artes',      icon: Image,           roles: ['admin','designer'] },
+  { to: '/producao',      label: 'Produção',   icon: Printer,         roles: ['admin','producao'] },
+  { to: '/estoque',       label: 'Estoque',    icon: Package,         roles: ['admin'] },
+  { to: '/financeiro',    label: 'Financeiro', icon: DollarSign,      roles: ['admin'] },
+  { to: '/relatorios',    label: 'Relatórios', icon: BarChart2,       roles: ['admin'] },
+  { to: '/usuarios',       label: 'Usuários',      icon: Settings,          roles: ['admin'] },
+  { to: '/configuracoes',  label: 'Configurações', icon: SlidersHorizontal, roles: ['admin'] },
+]
+
+export default function Sidebar({ open, onClose }: SidebarProps) {
+  const { user, logout, hasRole } = useAuth()
+
+  const visibleItems = navItems.filter(item => hasRole(item.roles))
+
+  return (
+    <>
+      {/* Overlay mobile */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/60 z-20 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside className={cn(
+        'fixed top-0 left-0 h-full w-64 bg-brand-dark-card border-r border-brand-dark-border z-30 flex flex-col transition-transform duration-300',
+        open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      )}>
+        {/* Logo RL Gráfica */}
+        <div className="flex items-center justify-between px-4 py-5 border-b border-brand-dark-border">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo.png"
+              alt="RL Gráfica"
+              className="h-12 w-auto object-contain drop-shadow-lg"
+              onError={(e) => {
+                // Fallback se logo.png não existir ainda
+                e.currentTarget.style.display = 'none'
+                e.currentTarget.nextElementSibling?.classList.remove('hidden')
+              }}
+            />
+            <div className="hidden">
+              <span className="text-xl font-black">
+                <span className="text-brand-gold">RL</span>
+                <span className="text-white"> Gráfica</span>
+              </span>
+            </div>
+            <span className="text-lg font-bold text-white leading-tight">
+              RL <span className="text-primary">Gráfica</span>
+              <span className="block text-xs text-gray-400 font-normal">Sistema ERP</span>
+            </span>
+          </div>
+          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-white">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Navegação */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          {visibleItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              onClick={onClose}
+              className={({ isActive }) => cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group',
+                isActive
+                  ? 'bg-primary/20 text-primary border border-primary/30'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              )}
+            >
+              <Icon size={18} className="shrink-0" />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Usuário + logout */}
+        <div className="p-4 border-t border-brand-dark-border">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-primary font-bold text-sm">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white truncate">{user?.name}</p>
+              <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+          >
+            <LogOut size={16} />
+            Sair
+          </button>
+        </div>
+      </aside>
+    </>
+  )
+}
