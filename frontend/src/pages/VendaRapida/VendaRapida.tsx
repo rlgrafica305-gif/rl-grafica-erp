@@ -141,6 +141,25 @@ export default function VendaRapida() {
     itens.every(i => i.descricao && i.quantidade > 0 && i.preco_unitario >= 0) &&
     formaPagamento
 
+  const handleWhatsApp = () => {
+    const nomeCliente = clienteSelecionado?.nome || clienteNovo.nome || 'Cliente'
+    const telefone = (clienteSelecionado?.telefone || clienteNovo.telefone || '').replace(/\D/g, '')
+    const linhasItens = itens
+      .filter(i => i.descricao)
+      .map(i => `• ${i.descricao} (${i.quantidade}x) — ${formatCurrency(i.quantidade * i.preco_unitario)}`)
+      .join('\n')
+    const descontoValorWA = total < subtotal ? subtotal - total : 0
+    let msg = `Olá ${nomeCliente}!\n\n`
+    msg += `*Pedido RL Gráfica*\n\n`
+    msg += `*Itens:*\n${linhasItens}\n\n`
+    if (descontoValorWA > 0) msg += `Desconto: -${formatCurrency(descontoValorWA)}\n`
+    msg += `*Total: ${formatCurrency(total)}*\n`
+    msg += `Pagamento: ${formaPagamento}\n\n`
+    msg += `_RL Gráfica — (11) 98092-3986_`
+    const phone = telefone ? `55${telefone}` : '5511980923986'
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
   // Tela de sucesso
   if (vendaFeita) {
     const telefone = vendaFeita.cliente_telefone.replace(/\D/g, '')
@@ -390,6 +409,13 @@ export default function VendaRapida() {
             onClick={finalizarVenda}
           >
             {mutation.isPending ? 'Registrando...' : `Finalizar Venda — ${formatCurrency(total)}`}
+          </button>
+
+          <button
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wider transition-colors text-sm"
+            onClick={handleWhatsApp}
+          >
+            <MessageCircle size={18} /> Enviar pelo WhatsApp
           </button>
 
           {mutation.isError && (
