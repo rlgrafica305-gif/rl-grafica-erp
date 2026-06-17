@@ -7,7 +7,7 @@ import {
 import { orcamentosApi, clientesApi, produtosApi } from '@/services/api'
 import {
   formatCurrency, formatDate,
-  STATUS_ORCAMENTO_LABEL, FORMA_PAGAMENTO_LABEL,
+  STATUS_ORCAMENTO_LABEL,
 } from '@/utils'
 import type { Orcamento, OrcamentoItem, Cliente, Produto } from '@/types'
 import OrcamentoFormulario from './OrcamentoFormulario'
@@ -108,42 +108,38 @@ export default function OrcamentosLista() {
 
   return (
     <div className="space-y-4">
-      {/* Cabeçalho + Abas */}
+      {/* Cabeçalho */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-white">Orçamentos</h2>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setAba('emitir')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              aba === 'emitir'
-                ? 'bg-primary text-white'
-                : 'bg-brand-dark-card border border-brand-dark-border text-gray-300 hover:text-white'
-            }`}
-          >
-            <ClipboardList size={15} /> Emitir Orçamento/Recibo
-          </button>
-          <button
-            onClick={() => setAba('historico')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              aba === 'historico'
-                ? 'bg-primary text-white'
-                : 'bg-brand-dark-card border border-brand-dark-border text-gray-300 hover:text-white'
-            }`}
-          >
-            <History size={15} /> Histórico
-          </button>
           {aba === 'historico' && (
-            <button onClick={() => setModalNovo(true)} className="btn-primary flex items-center gap-2 text-sm">
-              <Plus size={15} /> Novo
+            <>
+              <button
+                onClick={() => setAba('emitir')}
+                className="btn-secondary flex items-center gap-2 text-sm"
+              >
+                <ClipboardList size={15} /> Emitir Orçamento/Recibo
+              </button>
+              <button onClick={() => setModalNovo(true)} className="btn-primary flex items-center gap-2 text-sm">
+                <Plus size={15} /> Novo Orçamento
+              </button>
+            </>
+          )}
+          {aba === 'emitir' && (
+            <button
+              onClick={() => setAba('historico')}
+              className="btn-secondary flex items-center gap-2 text-sm"
+            >
+              <History size={15} /> Ver Histórico
             </button>
           )}
         </div>
       </div>
 
-      {/* Aba: Emitir Orçamento */}
+      {/* Formulário de emissão */}
       {aba === 'emitir' && <OrcamentoFormulario />}
 
-      {/* Aba: Histórico */}
+      {/* Histórico */}
       {aba === 'historico' && (
         <div className="card">
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
