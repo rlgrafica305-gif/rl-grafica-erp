@@ -44,6 +44,7 @@ export default function VendaRapida() {
   const [itens, setItens] = useState<ItemVenda[]>([{ id: gerarId(), descricao: '', quantidade: 1, preco_unitario: 0, custo_unitario: 0 }])
   const [formaPagamento, setFormaPagamento] = useState('Pix')
   const [statusPagamento, setStatusPagamento] = useState('aguardando_pagamento')
+  const [valorSinal, setValorSinal] = useState(0)
   const [desconto, setDesconto] = useState(0)
   const [prazoEntrega, setPrazoEntrega] = useState('')
   const [observacoes, setObservacoes] = useState('')
@@ -154,6 +155,10 @@ export default function VendaRapida() {
     msg += `*Itens:*\n${linhasItens}\n\n`
     if (descontoValorWA > 0) msg += `Desconto: -${formatCurrency(descontoValorWA)}\n`
     msg += `*Total: ${formatCurrency(total)}*\n`
+    if (statusPagamento === 'sinal_entrada' && valorSinal > 0) {
+      msg += `Sinal pago: ${formatCurrency(valorSinal)}\n`
+      msg += `*Restante a pagar: ${formatCurrency(Math.max(0, total - valorSinal))}*\n`
+    }
     msg += `Pagamento: ${formaPagamento}\n\n`
     msg += `_RL Gráfica — (11) 98092-3986_`
     const phone = telefone ? `55${telefone}` : '5511980923986'
@@ -370,6 +375,22 @@ export default function VendaRapida() {
               ))}
             </div>
           </div>
+
+          {statusPagamento === 'sinal_entrada' && (
+            <div className="space-y-2">
+              <div>
+                <label className={labelW}>Valor do Sinal (R$)</label>
+                <input
+                  type="number" min="0" step="0.01"
+                  className={inputW}
+                  placeholder="0,00"
+                  value={valorSinal || ''}
+                  onChange={e => setValorSinal(parseFloat(e.target.value) || 0)}
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className={labelW}>Data do Pedido</label>
             <input type="date" className={inputW} value={prazoEntrega} onChange={e => setPrazoEntrega(e.target.value)} />
@@ -401,6 +422,18 @@ export default function VendaRapida() {
               <span>Total</span>
               <span className="text-emerald-400">{formatCurrency(total)}</span>
             </div>
+            {statusPagamento === 'sinal_entrada' && (
+              <>
+                <div className="flex justify-between text-yellow-400 uppercase font-bold pt-1">
+                  <span>Sinal Pago</span>
+                  <span>{formatCurrency(valorSinal)}</span>
+                </div>
+                <div className="flex justify-between font-black text-orange-400 text-base pt-1 border-t border-brand-dark-border uppercase">
+                  <span>Restante a Pagar</span>
+                  <span>{formatCurrency(Math.max(0, total - valorSinal))}</span>
+                </div>
+              </>
+            )}
           </div>
 
           <button
