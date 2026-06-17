@@ -137,6 +137,7 @@ class ClienteController extends Controller
                 'telefone'   => $telefone,
                 'whatsapp'   => $telefone,
                 'tipo_pessoa'=> 'F',
+                'active'     => true,
                 'created_by' => auth()->id(),
             ]);
             $criados++;

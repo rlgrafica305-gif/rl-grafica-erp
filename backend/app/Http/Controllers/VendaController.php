@@ -19,7 +19,9 @@ class VendaController extends Controller
             return response()->json([]);
         }
 
-        $clientes = Cliente::where('active', true)
+        $clientes = Cliente::where(function ($q2) {
+                $q2->where('active', true)->orWhereNull('active');
+            })
             ->busca($q)
             ->orderBy('nome')
             ->limit(10)
