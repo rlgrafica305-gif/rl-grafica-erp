@@ -8,14 +8,18 @@ interface Contato {
   telefone: string
 }
 
+function limpaTelefone(t: string): string {
+  const num = t.replace(/\D/g, '')
+  if (num.startsWith('55') && num.length > 11) return num.slice(2)
+  return num
+}
+
 function parseVCF(texto: string): Contato[] {
   const contatos: Contato[] = []
   const blocos = texto.split(/BEGIN:VCARD/i).filter(b => b.trim())
-
   for (const bloco of blocos) {
     let nome = ''
     let telefone = ''
-
     for (const linha of bloco.split(/\r?\n/)) {
       const l = linha.trim()
       if (/^FN:/i.test(l)) {
@@ -24,14 +28,56 @@ function parseVCF(texto: string): Contato[] {
         const partes = l.replace(/^N:/i, '').split(';').map(s => s.trim()).filter(Boolean)
         nome = partes.reverse().join(' ').trim()
       } else if (/^TEL/i.test(l) && !telefone) {
-        telefone = l.split(':').slice(1).join(':').replace(/\D/g, '')
-        if (telefone.startsWith('55') && telefone.length > 11) telefone = telefone.slice(2)
+        telefone = limpaTelefone(l.split(':').slice(1).join(':'))
       }
     }
-
     if (nome) contatos.push({ nome, telefone })
   }
+  return contatos
+}
 
+function parseCSV(texto: string): Contato[] {
+  const linhas = texto.split(/\r?\n/).filter(l => l.trim())
+  if (linhas.length < 2) return []
+
+  // Detecta delimitador (vírgula ou ponto e vírgula)
+  const delim = linhas[0].includes(';') ? ';' : ','
+
+  const splitLinha = (l: string) =>
+    l.split(delim).map(c => c.trim().replace(/^"|"$/g, '').trim())
+
+  const headers = splitLinha(linhas[0]).map(h => h.toLowerCase())
+
+  // Detecta coluna de nome
+  const idxNome = headers.findIndex(h =>
+    h === 'name' || h === 'nome' || h === 'full name' || h === 'nome completo'
+  )
+  const idxPrimeiro = headers.findIndex(h => h === 'first name' || h === 'primeiro nome' || h === 'given name')
+  const idxUltimo   = headers.findIndex(h => h === 'last name'  || h === 'ultimo nome'   || h === 'family name' || h === 'surname')
+
+  // Detecta coluna de telefone (pega a primeira que tiver "phone" ou "tel" ou "celular" ou "whatsapp")
+  const idxTel = headers.findIndex(h =>
+    h.includes('phone') || h.includes('tel') || h.includes('celular') ||
+    h.includes('whatsapp') || h.includes('mobile') || h.includes('fone')
+  )
+
+  const contatos: Contato[] = []
+  for (let i = 1; i < linhas.length; i++) {
+    const cols = splitLinha(linhas[i])
+
+    let nome = ''
+    if (idxNome >= 0) {
+      nome = cols[idxNome] || ''
+    } else if (idxPrimeiro >= 0) {
+      nome = [cols[idxPrimeiro], idxUltimo >= 0 ? cols[idxUltimo] : ''].filter(Boolean).join(' ')
+    } else {
+      nome = cols[0] || ''
+    }
+
+    const telefone = idxTel >= 0 ? limpaTelefone(cols[idxTel] || '') : ''
+
+    if (nome.trim()) contatos.push({ nome: nome.trim(), telefone })
+  }
   return contatos
 }
 
@@ -52,7 +98,7 @@ export default function ImportarContatos() {
     const reader = new FileReader()
     reader.onload = (e) => {
       const texto = e.target?.result as string
-      const lista = parseVCF(texto)
+      const lista = file.name.toLowerCase().endsWith('.csv') ? parseCSV(texto) : parseVCF(texto)
       setContatos(lista)
     }
     reader.readAsText(file, 'UTF-8')
@@ -98,11 +144,11 @@ export default function ImportarContatos() {
           <p className="text-white font-bold uppercase tracking-wide">
             {arquivo ? arquivo : 'Clique ou arraste o arquivo .vcf aqui'}
           </p>
-          <p className="text-gray-500 text-sm mt-1">Formato: arquivo de contatos .vcf</p>
+          <p className="text-gray-500 text-sm mt-1">Formatos aceitos: .vcf ou .csv</p>
           <input
             ref={inputRef}
             type="file"
-            accept=".vcf,.vcard"
+            accept=".vcf,.vcard,.csv"
             className="hidden"
             onChange={e => e.target.files?.[0] && handleArquivo(e.target.files[0])}
           />
