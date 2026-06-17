@@ -121,13 +121,24 @@ class ClienteController extends Controller
 
             if (!$nome) continue;
 
-            $existe = Cliente::where('nome', $nome)
-                ->orWhere(function ($q) use ($telefone) {
-                    if ($telefone) $q->where('telefone', $telefone)->orWhere('whatsapp', $telefone);
-                })
-                ->exists();
+            // Busca por telefone primeiro (mais preciso)
+            $existentePorTel = $telefone
+                ? Cliente::where('telefone', $telefone)->orWhere('whatsapp', $telefone)->first()
+                : null;
 
-            if ($existe) {
+            if ($existentePorTel) {
+                $duplicados++;
+                continue;
+            }
+
+            // Busca por nome
+            $existentePorNome = Cliente::whereRaw('LOWER(nome) = ?', [mb_strtolower($nome)])->first();
+
+            if ($existentePorNome) {
+                // Atualiza telefone se estava vazio
+                if ($telefone && !$existentePorNome->telefone) {
+                    $existentePorNome->update(['telefone' => $telefone, 'whatsapp' => $telefone]);
+                }
                 $duplicados++;
                 continue;
             }
