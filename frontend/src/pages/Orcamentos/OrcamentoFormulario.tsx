@@ -127,17 +127,19 @@ export default function OrcamentoFormulario() {
 
       <div className="bg-slate-800 text-white border-2 border-slate-600 w-full max-w-xl shadow-2xl rounded-sm">
 
-        {/* Cabecalho centralizado */}
-        <div className="flex flex-col items-center py-3 px-4 border-b-2 border-slate-600 bg-slate-900">
+        {/* Cabecalho: logo esquerda + info centralizada direita */}
+        <div className="flex items-center py-3 px-4 border-b-2 border-slate-600 bg-slate-900">
           <img
             src="/logo-rl.png"
             alt="RL Grafica"
-            className="h-20 w-auto object-contain mb-2"
+            className="h-20 w-auto object-contain shrink-0"
             onError={e => { (e.target as HTMLImageElement).src = '/logo-login.png' }}
           />
-          <h1 className="text-2xl font-black tracking-wider text-white">RL GRAFICA</h1>
-          <p className="text-sm font-semibold text-gray-200 mt-0.5">(11) 98092-3986 &nbsp;|&nbsp; Desde 1999</p>
-          <p className="text-xs text-gray-400 mt-0.5">Rua da Cavalgada, 111 - Jd. Julieta - Sao Paulo</p>
+          <div className="flex-1 flex flex-col items-center text-center">
+            <h1 className="text-2xl font-black tracking-wider text-white">RL GRAFICA</h1>
+            <p className="text-sm font-semibold text-gray-200 mt-0.5">(11) 98092-3986 &nbsp;|&nbsp; Desde 1999</p>
+            <p className="text-xs text-gray-400 mt-0.5">Rua da Cavalgada, 111 - Jd. Julieta - Sao Paulo</p>
+          </div>
         </div>
 
         {/* Tipo */}
