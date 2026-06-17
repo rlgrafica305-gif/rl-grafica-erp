@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Edit2, Save, X, Plus, Trash2, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Edit2, Save, X, Plus, Trash2, RefreshCw, MessageCircle } from 'lucide-react'
 import { pedidosApi } from '@/services/api'
 import { formatCurrency, formatDate, STATUS_PEDIDO_LABEL, STATUS_PEDIDO_COLOR, FORMA_PAGAMENTO_LABEL } from '@/utils'
 
@@ -110,6 +110,33 @@ export default function PedidoDetalhe() {
     updateMutation.mutate(payload)
   }
 
+  function handleWhatsApp() {
+    if (!pedido) return
+    const telefone = (pedido.cliente?.whatsapp || pedido.cliente?.telefone || '').replace(/\D/g, '')
+    const nomeCliente = pedido.cliente?.nome || 'Cliente'
+    const stPagLabel = STATUS_PAG[pedido.status_pagamento ?? '']?.label ?? ''
+    const linhasItens = (pedido.itens ?? [])
+      .map((i: { descricao: string; quantidade: number; preco_unitario: number; subtotal: number }) =>
+        `• ${i.descricao} (${i.quantidade}x) — ${formatCurrency(Number(i.subtotal))}`
+      ).join('\n')
+
+    let msg = `Olá ${nomeCliente}!\n\n`
+    msg += `*Comprovante RL Gráfica*\n`
+    msg += `Pedido: *${pedido.numero}*\n\n`
+    msg += `*Itens:*\n${linhasItens}\n\n`
+    if (Number(pedido.desconto_percentual) > 0) {
+      msg += `Desconto (${pedido.desconto_percentual}%): -${formatCurrency(Number(pedido.subtotal) * Number(pedido.desconto_percentual) / 100)}\n`
+    }
+    msg += `*Total: ${formatCurrency(Number(pedido.total))}*\n`
+    msg += `Pagamento: ${FORMA_PAGAMENTO_LABEL[pedido.forma_pagamento ?? ''] ?? pedido.forma_pagamento}\n`
+    msg += `Status: ${stPagLabel}\n`
+    if (pedido.prazo_entrega) msg += `Data: ${formatDate(pedido.prazo_entrega)}\n`
+    msg += `\n_RL Gráfica — (11) 98092-3986_`
+
+    const phone = telefone ? `55${telefone}` : '5511980923986'
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
   function atualizarItem(key: string, campo: keyof ItemEdit, valor: unknown) {
     setEItens(prev => prev.map(i => i._key === key ? { ...i, [campo]: valor } : i))
   }
@@ -161,12 +188,20 @@ export default function PedidoDetalhe() {
         </div>
 
         {!editando ? (
-          <button
-            onClick={iniciarEdicao}
-            className="flex items-center gap-2 btn-secondary text-sm"
-          >
-            <Edit2 size={14} /> Editar
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleWhatsApp}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              <MessageCircle size={15} /> WhatsApp
+            </button>
+            <button
+              onClick={iniciarEdicao}
+              className="flex items-center gap-2 btn-secondary text-sm"
+            >
+              <Edit2 size={14} /> Editar
+            </button>
+          </div>
         ) : (
           <div className="flex gap-2">
             <button
