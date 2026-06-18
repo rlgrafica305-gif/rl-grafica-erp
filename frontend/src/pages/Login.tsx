@@ -21,7 +21,11 @@ export default function Login() {
       await login(email, password)
       navigate('/')
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'E-mail ou senha inválidos.')
+      if (!err?.response) {
+        setError('Não foi possível conectar ao servidor. Tente novamente em instantes.')
+      } else {
+        setError(err?.response?.data?.message || 'E-mail ou senha inválidos.')
+      }
     } finally {
       setLoading(false)
     }

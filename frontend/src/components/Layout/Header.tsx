@@ -32,7 +32,7 @@ export default function Header({ onMenuClick, title }: HeaderProps) {
         </div>
 
         {title && (
-          <h1 className="text-lg font-semibold text-white hidden sm:block">{title}</h1>
+          <h1 className="text-sm sm:text-lg font-semibold text-white truncate max-w-[140px] sm:max-w-none">{title}</h1>
         )}
       </div>
 

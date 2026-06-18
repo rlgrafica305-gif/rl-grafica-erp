@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Produção Demo',  'email' => 'producao@rlgrafica.com.br', 'password' => Hash::make('prod123'),   'role' => 'producao'],
         ];
         foreach ($users as $u) {
-            User::updateOrCreate(['email' => $u['email']], $u);
+            User::firstOrCreate(['email' => $u['email']], $u);
         }
 
         // Categorias de produto

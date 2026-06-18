@@ -262,19 +262,22 @@ export default function VendaRapida() {
         <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Cliente</h3>
 
         {clienteSelecionado ? (
-          <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-3">
-            <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-3">
+            <div className="flex items-center justify-between sm:flex-1 min-w-0">
               <p className="font-bold text-white uppercase truncate">{clienteSelecionado.nome}</p>
+              <button className="sm:hidden text-xs font-bold text-gray-400 hover:text-red-400 uppercase transition-colors ml-2 shrink-0" onClick={() => { setClienteSelecionado(null); setTelefoneVenda('') }}>
+                Trocar
+              </button>
             </div>
             <div className="shrink-0">
               <input
-                className="input text-sm w-44"
+                className="input text-sm w-full sm:w-44"
                 placeholder="(00) 00000-0000"
                 value={telefoneVenda}
                 onChange={e => setTelefoneVenda(maskTelefone(e.target.value))}
               />
             </div>
-            <button className="text-xs font-bold text-gray-400 hover:text-red-400 uppercase transition-colors shrink-0" onClick={() => { setClienteSelecionado(null); setTelefoneVenda('') }}>
+            <button className="hidden sm:block text-xs font-bold text-gray-400 hover:text-red-400 uppercase transition-colors shrink-0" onClick={() => { setClienteSelecionado(null); setTelefoneVenda('') }}>
               Trocar
             </button>
           </div>
@@ -335,19 +338,19 @@ export default function VendaRapida() {
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div>
-                  <label className={labelW}>Quantidade</label>
+                  <label className={labelW}>Qtd</label>
                   <input type="number" min="0.01" step="0.01" className={inputW}
                     value={item.quantidade} onChange={e => atualizarItem(item.id, 'quantidade', parseFloat(e.target.value) || 0)} />
                 </div>
                 <div>
-                  <label className={labelW}>Custo Unit. R$</label>
+                  <label className={labelW}>Custo R$</label>
                   <input type="number" min="0" step="0.01" className={inputW} placeholder="0,00"
                     value={item.custo_unitario} onChange={e => atualizarItem(item.id, 'custo_unitario', parseFloat(e.target.value) || 0)} />
                 </div>
                 <div>
-                  <label className={labelW}>Valor Venda R$</label>
+                  <label className={labelW}>Venda R$</label>
                   <input type="number" min="0" step="0.01" className={inputW} placeholder="0,00"
                     value={item.preco_unitario} onChange={e => atualizarItem(item.id, 'preco_unitario', parseFloat(e.target.value) || 0)} />
                 </div>

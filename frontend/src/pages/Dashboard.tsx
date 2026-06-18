@@ -181,27 +181,30 @@ export default function Dashboard() {
           <table className="table">
             <thead>
               <tr>
-                <th>Número</th>
+                <th className="hidden sm:table-cell">Número</th>
                 <th>Cliente</th>
                 <th>Status</th>
-                <th>Prazo</th>
+                <th className="hidden md:table-cell">Prazo</th>
                 <th>Total</th>
-                <th>Vendedor</th>
+                <th className="hidden md:table-cell">Vendedor</th>
               </tr>
             </thead>
             <tbody>
               {data?.ultimos_pedidos?.map(pedido => (
                 <tr key={pedido.id}>
-                  <td className="font-mono text-xs text-gray-300">{pedido.numero}</td>
-                  <td className="font-medium text-white">{pedido.cliente?.nome}</td>
+                  <td className="hidden sm:table-cell font-mono text-xs text-gray-300">{pedido.numero}</td>
+                  <td className="font-medium text-white">
+                    <span>{pedido.cliente?.nome}</span>
+                    <span className="block sm:hidden font-mono text-xs text-gray-500">{pedido.numero}</span>
+                  </td>
                   <td>
                     <span className={`badge ${STATUS_PEDIDO_COLOR[pedido.status]}`}>
                       {STATUS_PEDIDO_LABEL[pedido.status]}
                     </span>
                   </td>
-                  <td className="text-gray-300">{formatDate(pedido.prazo_entrega)}</td>
+                  <td className="hidden md:table-cell text-gray-300">{formatDate(pedido.prazo_entrega)}</td>
                   <td className="font-semibold text-green-400">{formatCurrency(pedido.total)}</td>
-                  <td className="text-gray-300">{pedido.vendedor?.name}</td>
+                  <td className="hidden md:table-cell text-gray-300">{pedido.vendedor?.name}</td>
                 </tr>
               ))}
             </tbody>

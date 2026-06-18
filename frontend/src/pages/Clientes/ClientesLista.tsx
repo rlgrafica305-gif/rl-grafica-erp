@@ -60,11 +60,11 @@ export default function ClientesLista() {
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th>CPF/CNPJ</th>
+                  <th className="hidden md:table-cell">CPF/CNPJ</th>
                   <th>Contato</th>
-                  <th>Cidade</th>
-                  <th>Total Compras</th>
-                  <th>Status</th>
+                  <th className="hidden md:table-cell">Cidade</th>
+                  <th className="hidden sm:table-cell">Total Compras</th>
+                  <th className="hidden sm:table-cell">Status</th>
                   <th className="text-right">Ações</th>
                 </tr>
               </thead>
@@ -77,7 +77,7 @@ export default function ClientesLista() {
                         <p className="text-xs text-gray-500">{cliente.tipo_pessoa === 'F' ? 'Pessoa Física' : 'Pessoa Jurídica'}</p>
                       </div>
                     </td>
-                    <td className="font-mono text-sm">{cliente.cpf_cnpj ? formatCPFCNPJ(cliente.cpf_cnpj) : '—'}</td>
+                    <td className="hidden md:table-cell font-mono text-sm">{cliente.cpf_cnpj ? formatCPFCNPJ(cliente.cpf_cnpj) : '—'}</td>
                     <td>
                       <div className="space-y-0.5">
                         {cliente.telefone && (
@@ -92,9 +92,9 @@ export default function ClientesLista() {
                         )}
                       </div>
                     </td>
-                    <td className="text-gray-300">{cliente.cidade ? `${cliente.cidade}/${cliente.estado}` : '—'}</td>
-                    <td className="font-semibold text-green-400">{formatCurrency(cliente.total_compras ?? 0)}</td>
-                    <td>
+                    <td className="hidden md:table-cell text-gray-300">{cliente.cidade ? `${cliente.cidade}/${cliente.estado}` : '—'}</td>
+                    <td className="hidden sm:table-cell font-semibold text-green-400">{formatCurrency(cliente.total_compras ?? 0)}</td>
+                    <td className="hidden sm:table-cell">
                       <span className={`badge ${cliente.active ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
                         {cliente.active ? 'Ativo' : 'Inativo'}
                       </span>

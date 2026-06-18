@@ -53,13 +53,20 @@ function parseCSV(texto: string): Contato[] {
     h === 'name' || h === 'nome' || h === 'full name' || h === 'nome completo'
   )
   const idxPrimeiro = headers.findIndex(h => h === 'first name' || h === 'primeiro nome' || h === 'given name')
+  const idxMeio     = headers.findIndex(h => h === 'middle name' || h === 'nome do meio')
   const idxUltimo   = headers.findIndex(h => h === 'last name'  || h === 'ultimo nome'   || h === 'family name' || h === 'surname')
+  const idxOrg      = headers.findIndex(h => h === 'organization name' || h === 'empresa' || h === 'company')
 
-  // Detecta coluna de telefone (pega a primeira que tiver "phone" ou "tel" ou "celular" ou "whatsapp")
-  const idxTel = headers.findIndex(h =>
-    h.includes('phone') || h.includes('tel') || h.includes('celular') ||
-    h.includes('whatsapp') || h.includes('mobile') || h.includes('fone')
-  )
+  // Detecta coluna de telefone: prefere colunas com "value" (ex: "Phone 1 - Value")
+  // para evitar pegar "Phone 1 - Label" que contém o tipo ("Mobile", "Celular"), não o número
+  const isPhoneCol = (h: string) =>
+    h.includes('phone') || h.includes('celular') ||
+    h.includes('whatsapp') || h.includes('mobile') || h.includes('fone') ||
+    (h.includes('tel') && !h.includes('label'))
+
+  let idxTel = headers.findIndex(h => isPhoneCol(h) && h.includes('value'))
+  if (idxTel === -1) idxTel = headers.findIndex(h => isPhoneCol(h) && !h.includes('label'))
+  if (idxTel === -1) idxTel = headers.findIndex(h => isPhoneCol(h))
 
   const contatos: Contato[] = []
   for (let i = 1; i < linhas.length; i++) {
@@ -69,10 +76,15 @@ function parseCSV(texto: string): Contato[] {
     if (idxNome >= 0) {
       nome = cols[idxNome] || ''
     } else if (idxPrimeiro >= 0) {
-      nome = [cols[idxPrimeiro], idxUltimo >= 0 ? cols[idxUltimo] : ''].filter(Boolean).join(' ')
-    } else {
-      nome = cols[0] || ''
+      nome = [
+        cols[idxPrimeiro],
+        idxMeio >= 0 ? cols[idxMeio] : '',
+        idxUltimo >= 0 ? cols[idxUltimo] : '',
+      ].filter(Boolean).join(' ')
     }
+    // Fallback para nome da organização se nenhum nome pessoal foi encontrado
+    if (!nome.trim() && idxOrg >= 0) nome = cols[idxOrg] || ''
+    if (!nome.trim()) nome = cols[0] || ''
 
     const telefone = idxTel >= 0 ? limpaTelefone(cols[idxTel] || '') : ''
 

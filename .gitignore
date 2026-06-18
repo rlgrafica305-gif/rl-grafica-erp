@@ -16,6 +16,9 @@ backend/.phpunit.result.cache
 frontend/node_modules/
 frontend/dist/
 frontend/.vercel/
+frontend/.env.vercel
+frontend/.env.local
+frontend/.env.*.local
 
 # ─── Template base (não faz parte do projeto ativo) ─────────────────
 laravel-base/
@@ -28,3 +31,5 @@ Thumbs.db
 *.bak
 .idea/
 .vscode/
+
+.vercel
