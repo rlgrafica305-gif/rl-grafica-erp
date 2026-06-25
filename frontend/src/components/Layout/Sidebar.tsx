@@ -41,34 +41,17 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       )}
 
       <aside className={cn(
-        'fixed top-0 left-0 h-full w-64 bg-brand-dark-card border-r border-brand-dark-border z-30 flex flex-col transition-transform duration-300',
+        'fixed top-0 left-0 h-full w-72 sm:w-64 bg-brand-dark-card border-r border-brand-dark-border z-30 flex flex-col transition-transform duration-300',
         open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       )}>
         {/* Logo RL Gráfica */}
-        <div className="flex items-center justify-between px-4 py-5 border-b border-brand-dark-border">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="RL Gráfica"
-              className="h-12 w-auto object-contain drop-shadow-lg"
-              onError={(e) => {
-                // Fallback se logo.png não existir ainda
-                e.currentTarget.style.display = 'none'
-                e.currentTarget.nextElementSibling?.classList.remove('hidden')
-              }}
-            />
-            <div className="hidden">
-              <span className="text-xl font-black">
-                <span className="text-brand-gold">RL</span>
-                <span className="text-white"> Gráfica</span>
-              </span>
-            </div>
-            <span className="text-lg font-bold text-white leading-tight">
-              RL <span className="text-primary">Gráfica</span>
-              <span className="block text-xs text-gray-400 font-normal">Sistema ERP</span>
-            </span>
-          </div>
-          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-white">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-brand-dark-border">
+          <img
+            src="/logo-rl.png"
+            alt="RL Gráfica"
+            className="h-14 w-auto object-contain"
+          />
+          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5" aria-label="Fechar menu">
             <X size={20} />
           </button>
         </div>
@@ -82,7 +65,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               end={to === '/'}
               onClick={onClose}
               className={({ isActive }) => cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group',
+                'flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-150 group min-h-[44px]',
                 isActive
                   ? 'bg-primary/20 text-primary border border-primary/30'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'

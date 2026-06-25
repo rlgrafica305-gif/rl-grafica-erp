@@ -49,27 +49,37 @@ export default function Dashboard() {
   }))
 
   return (
-    <div className="space-y-6">
-      {/* Logo header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="RL Gráfica" className="h-10 w-auto object-contain hidden sm:block" />
-          <div>
-            <h2 className="text-xl font-bold text-white">Dashboard</h2>
-            <p className="text-sm text-gray-400">Visão geral em tempo real</p>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#172033] via-[#111827] to-[#0f172a] p-4 shadow-xl shadow-black/20 sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex items-center gap-4">
+            <img src="/logo-rl.png" alt="RL Gráfica" className="h-16 w-auto object-contain hidden sm:block" />
+            <div>
+              <p className="text-sm font-medium text-primary">Resumo rápido</p>
+              <h2 className="text-xl font-bold text-white">Dashboard</h2>
+              <p className="mt-1 text-sm text-gray-400">Acompanhe vendas, produção e financeiro em um só lugar.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => navigate('/venda-rapida')}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/80"
+            >
+              <ShoppingBag size={16} />
+              Nova Venda
+            </button>
+            <button
+              onClick={() => navigate('/pedidos')}
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-gray-200 transition-all hover:bg-white/10"
+            >
+              Ver Pedidos
+            </button>
           </div>
         </div>
-        <button
-          onClick={() => navigate('/venda-rapida')}
-          className="flex items-center gap-2 bg-primary hover:bg-primary/80 text-white font-semibold px-4 py-2 rounded-lg transition-all text-sm shadow-lg shadow-primary/20"
-        >
-          <ShoppingBag size={16} />
-          <span className="hidden sm:inline">Nova Venda</span>
-        </button>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <KpiCard
           icon={<ShoppingCart size={22} />}
           label="Pedidos Hoje"
@@ -128,11 +138,17 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Faturamento */}
-        <div className="card lg:col-span-2">
-          <h3 className="text-base font-semibold text-white mb-4">Faturamento — Últimos 6 Meses</h3>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <div className="card xl:col-span-2">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-semibold text-white">Faturamento</h3>
+              <p className="text-sm text-gray-400">Últimos 6 meses</p>
+            </div>
+            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
+              +12%
+            </span>
+          </div>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={areaData}>
               <defs>
@@ -154,9 +170,11 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        {/* Pedidos por status */}
         <div className="card">
-          <h3 className="text-base font-semibold text-white mb-4">Pedidos em Aberto</h3>
+          <div className="mb-4">
+            <h3 className="text-base font-semibold text-white">Pedidos em Aberto</h3>
+            <p className="text-sm text-gray-400">Distribuição por status</p>
+          </div>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={pieData} innerRadius={55} outerRadius={90} dataKey="value" paddingAngle={3}>
@@ -174,41 +192,53 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Últimos pedidos */}
       <div className="card">
-        <h3 className="text-base font-semibold text-white mb-4">Últimos Pedidos</h3>
-        <div className="table-container">
-          <table className="table">
-            <thead>
-              <tr>
-                <th className="hidden sm:table-cell">Número</th>
-                <th>Cliente</th>
-                <th>Status</th>
-                <th className="hidden md:table-cell">Prazo</th>
-                <th>Total</th>
-                <th className="hidden md:table-cell">Vendedor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.ultimos_pedidos?.map(pedido => (
-                <tr key={pedido.id}>
-                  <td className="hidden sm:table-cell font-mono text-xs text-gray-300">{pedido.numero}</td>
-                  <td className="font-medium text-white">
-                    <span>{pedido.cliente?.nome}</span>
-                    <span className="block sm:hidden font-mono text-xs text-gray-500">{pedido.numero}</span>
-                  </td>
-                  <td>
-                    <span className={`badge ${STATUS_PEDIDO_COLOR[pedido.status]}`}>
-                      {STATUS_PEDIDO_LABEL[pedido.status]}
-                    </span>
-                  </td>
-                  <td className="hidden md:table-cell text-gray-300">{formatDate(pedido.prazo_entrega)}</td>
-                  <td className="font-semibold text-green-400">{formatCurrency(pedido.total)}</td>
-                  <td className="hidden md:table-cell text-gray-300">{pedido.vendedor?.name}</td>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-white">Últimos Pedidos</h3>
+            <p className="text-sm text-gray-400">Acompanhe o andamento recente</p>
+          </div>
+          <button
+            onClick={() => navigate('/pedidos')}
+            className="text-sm font-semibold text-primary transition-all hover:text-primary/80"
+          >
+            Ver todos
+          </button>
+        </div>
+        <div className="overflow-hidden rounded-2xl border border-white/5">
+          <div className="overflow-x-auto">
+            <table className="table min-w-[640px]">
+              <thead>
+                <tr>
+                  <th className="hidden sm:table-cell">Número</th>
+                  <th>Cliente</th>
+                  <th>Status</th>
+                  <th className="hidden md:table-cell">Prazo</th>
+                  <th>Total</th>
+                  <th className="hidden md:table-cell">Vendedor</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data?.ultimos_pedidos?.map(pedido => (
+                  <tr key={pedido.id}>
+                    <td className="hidden sm:table-cell font-mono text-xs text-gray-300">{pedido.numero}</td>
+                    <td className="font-medium text-white">
+                      <span>{pedido.cliente?.nome}</span>
+                      <span className="block sm:hidden font-mono text-xs text-gray-500">{pedido.numero}</span>
+                    </td>
+                    <td>
+                      <span className={`badge ${STATUS_PEDIDO_COLOR[pedido.status]}`}>
+                        {STATUS_PEDIDO_LABEL[pedido.status]}
+                      </span>
+                    </td>
+                    <td className="hidden md:table-cell text-gray-300">{formatDate(pedido.prazo_entrega)}</td>
+                    <td className="font-semibold text-green-400">{formatCurrency(pedido.total)}</td>
+                    <td className="hidden md:table-cell text-gray-300">{pedido.vendedor?.name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -223,13 +253,13 @@ function KpiCard({ icon, label, value, color, bg }: {
   bg: string
 }) {
   return (
-    <div className={`card border ${bg} flex items-center gap-4`}>
-      <div className={`${color} ${bg} p-2.5 rounded-lg border`}>
+    <div className={`card rounded-2xl border ${bg} flex items-center gap-3 p-4`}>
+      <div className={`${color} ${bg} rounded-xl border p-2.5`}>
         {icon}
       </div>
-      <div>
-        <p className="text-xs text-gray-400 font-medium">{label}</p>
-        <p className="text-xl font-bold text-white">{value}</p>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-gray-400">{label}</p>
+        <p className="text-lg font-bold text-white sm:text-xl">{value}</p>
       </div>
     </div>
   )

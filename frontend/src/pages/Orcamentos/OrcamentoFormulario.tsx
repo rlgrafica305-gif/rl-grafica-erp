@@ -195,7 +195,7 @@ export default function OrcamentoFormulario() {
         </div>
 
         {/* Header tabela */}
-        <div className="grid grid-cols-[56px_1fr_80px_80px] border-b border-slate-600 text-xs font-bold bg-slate-700 text-gray-200">
+        <div className="grid grid-cols-[110px_1fr_80px_80px] border-b border-slate-600 text-xs font-bold bg-slate-700 text-gray-200">
           <div className="text-center py-1 border-r border-slate-600">Quant.</div>
           <div className="py-1 px-2 border-r border-slate-600">Produto</div>
           <div className="text-center py-1 border-r border-slate-600">Valor Unit.</div>
@@ -204,7 +204,7 @@ export default function OrcamentoFormulario() {
 
         {/* Linhas */}
         {linhas.map((linha, idx) => (
-          <div key={idx} className={`grid grid-cols-[56px_1fr_80px_80px] border-b border-slate-600 ${idx % 2 === 0 ? 'bg-slate-800' : 'bg-slate-800/70'}`}>
+          <div key={idx} className={`grid grid-cols-[110px_1fr_80px_80px] border-b border-slate-600 ${idx % 2 === 0 ? 'bg-slate-800' : 'bg-slate-800/70'}`}>
             <div className="border-r border-slate-600">
               <input type="number" value={linha.quantidade} onChange={e => updateLinha(idx, 'quantidade', e.target.value)}
                 className="w-full h-7 text-center text-xs outline-none bg-transparent text-white px-1" min="0" step="any" />
